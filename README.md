@@ -3,10 +3,10 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
 
 
 ## TODO
- - [ ] trade producer
+ - [x] trade producer
     - [x] extract config params
     - [x] dockerize
- - [ ] trade to ohlc service
+ - [x] trade to ohlcv service
  - [ ] topic to feature store service
  - [ ] historical backfill
 
