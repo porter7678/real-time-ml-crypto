@@ -22,19 +22,14 @@ def produce_trades(
     """
     # Create an Application instance with Kafka config
     app = Application(broker_address=kafka_broker_address)
-    # Define a topic "my_topic" with JSON serialization
     topic = app.topic(name=kafka_topic, value_serializer="json")
 
-    # Create a KrakenWebsocketAPI instance
     kraken_api = KrakenWebsocketAPI(product_id=product_id)
 
     # Create a Producer instance
     with app.get_producer() as producer:
 
         while True:
-            # Sample event data
-            # event = {"id": "1", "text": "Lorem ipsum dolor sit amet"}
-
             trades: list[Trade] = kraken_api.get_trades()
 
             for trade in trades:
@@ -49,9 +44,10 @@ def produce_trades(
 
 
 if __name__ == "__main__":
-    # Call the function with the given arguments
+    from src.config import config
+
     produce_trades(
-        kafka_broker_address="localhost:19092",
-        kafka_topic="trade",
-        product_id="BTC/USD",
+        kafka_broker_address=config.kafka_broker_address,
+        kafka_topic=config.kafka_topic,
+        product_id=config.product_id,
     )

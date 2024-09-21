@@ -460,13 +460,13 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
 name = "pydantic-settings"
-version = "2.4.0"
+version = "2.5.2"
 description = "Settings management using Pydantic"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydantic_settings-2.4.0-py3-none-any.whl", hash = "sha256:bb6849dc067f1687574c12a639e231f3a6feeed0a12d710c1382045c5db1c315"},
-    {file = "pydantic_settings-2.4.0.tar.gz", hash = "sha256:ed81c3a0f46392b4d7c0a565c05884e6e54b3456e6f0fe4d8814981172dc9a88"},
+    {file = "pydantic_settings-2.5.2-py3-none-any.whl", hash = "sha256:2c912e55fd5794a59bf8c832b9de832dcfdf4778d79ff79b708744eed499a907"},
+    {file = "pydantic_settings-2.5.2.tar.gz", hash = "sha256:f90b139682bee4d2065273d5185d71d37ea46cfe57e1b5ae184fc6a0b2484ca0"},
 ]
 
 [package.dependencies]
@@ -494,20 +494,20 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "quixstreams"
-version = "2.10.0"
+version = "2.11.0"
 description = "Python library for building stream processing applications with Apache Kafka"
 optional = false
 python-versions = "<4,>=3.8"
 files = [
-    {file = "quixstreams-2.10.0-py3-none-any.whl", hash = "sha256:17c15d30e79f81644b9d00abc51fc0ba15324c0621cd7597ea67c090fa7a0af5"},
+    {file = "quixstreams-2.11.0-py3-none-any.whl", hash = "sha256:a3ec70ea2e8f7f582830de94f883007f2ed4dd002ea5d3ff9aab97332a3d60ca"},
 ]
 
 [package.dependencies]
 confluent-kafka = ">=2.2,<2.6"
 jsonschema = ">=4.3.0"
 orjson = ">=3.9,<4"
-pydantic = ">=2.7,<2.9"
-pydantic-settings = ">=2.3,<2.5"
+pydantic = ">=2.7,<2.10"
+pydantic-settings = ">=2.3,<2.6"
 requests = ">=2.32"
 rocksdict = ">=0.3,<0.4"
 typing-extensions = ">=4.8"
@@ -772,4 +772,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6a4db3d05351455f8406fa042803977712328af581f7ff173b1d3dc6817a37d2"
+content-hash = "109be45ff7b6d56663a925b7080d1b7c3a8e5e922cad3659a35814d66fe8d01b"
