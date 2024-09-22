@@ -7,9 +7,11 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
     - [x] extract config params
     - [x] dockerize
  - [x] trade to ohlcv service
- - [ ] topic to feature store service
+ - [x] topic to feature store service
  - [ ] historical backfill
-
+    - [ ] Implement a Kraken Historical data reader (trade producer)
+    - [ ] Adjust timestmps used to bucket trades into windows (trade to ohlcv)
+    - [ ] Save historical ohlcv features in batches to the offline store (topic to feature store)    
 
 
 

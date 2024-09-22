@@ -14,6 +14,7 @@ def init_ohlcv_candle(trade: dict) -> dict:
         "low": trade["price"],
         "close": trade["price"],
         "volume": trade["quantity"],
+        "product_id": trade["product_id"],
     }
 
 
@@ -25,6 +26,7 @@ def update_ohlcv_candle(candle: dict, trade: dict) -> dict:
     candle["low"] = min(candle["low"], trade["price"])
     candle["close"] = trade["price"]
     candle["volume"] += trade["quantity"]
+    candle["product_id"] = trade["product_id"]
 
     return candle
 
@@ -76,10 +78,11 @@ def transform_trade_to_ohlcv(
     sdf["low"] = sdf["value"]["low"]
     sdf["close"] = sdf["value"]["close"]
     sdf["volume"] = sdf["value"]["volume"]
+    sdf["product_id"] = sdf["value"]["product_id"]
     sdf["timestamp_ms"] = sdf["end"]
 
     # Keep only the necessary columns
-    sdf = sdf[["timestamp_ms", "open", "high", "low", "close", "volume"]]
+    sdf = sdf[["product_id", "timestamp_ms", "open", "high", "low", "close", "volume"]]
 
     # Push the OHLCV data to the output Kafka topic
     sdf = sdf.to_topic(output_topic)
