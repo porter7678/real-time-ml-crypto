@@ -2,18 +2,12 @@ import json
 from datetime import datetime, timezone
 
 from loguru import logger
-from pydantic import BaseModel
 from websocket import create_connection
 
-
-class Trade(BaseModel):
-    product_id: str
-    quantity: float
-    price: float
-    timestamp_ms: int
+from src.trade_data_source import Trade, TradeSource
 
 
-class KrakenWebsocketAPI:
+class KrakenWebsocketAPI(TradeSource):
     """
     Class for reading real-time trades from the Kraken websocket API.
     """

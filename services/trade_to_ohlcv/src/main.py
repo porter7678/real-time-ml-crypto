@@ -68,7 +68,8 @@ def transform_trade_to_ohlcv(
     sdf = (
         sdf.tumbling_window(duration_ms=timedelta(seconds=ohlcv_window_seconds))
         .reduce(initializer=init_ohlcv_candle, reducer=update_ohlcv_candle)
-        .current()
+        .current() # FIXME: switch to final
+        # .final()
     )
 
     sdf.update(logger.debug)
