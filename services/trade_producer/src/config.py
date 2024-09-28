@@ -8,5 +8,8 @@ class Config(BaseSettings):
     kafka_topic: str
     product_id: str
 
+    live_or_historical: str | None = None
+    last_n_days: int | None = None
+
 
 config = Config()

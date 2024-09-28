@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.trade_data_source import Trade
+from src.trade_data_source.trade import Trade
 
 
 class TradeSource(ABC):
