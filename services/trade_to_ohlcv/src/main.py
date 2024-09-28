@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Any, List, Optional, Tuple
 
 from loguru import logger
 from quixstreams import Application
@@ -31,6 +32,19 @@ def update_ohlcv_candle(candle: dict, trade: dict) -> dict:
     return candle
 
 
+def custom_ts_extractor(
+    value: Any,
+    headers: Optional[List[Tuple[str, bytes]]],
+    timestamp: float,
+    timestamp_type,
+) -> int:
+    """
+    Specify a custom timestamp extractor to extract the timestamp from the trade data
+    rather than from Kafka timestamp.
+    """
+    return value["timestamp_ms"]
+
+
 def transform_trade_to_ohlcv(
     kafka_broker_address: str,
     kafka_input_topic: str,
@@ -56,7 +70,11 @@ def transform_trade_to_ohlcv(
         broker_address=kafka_broker_address, consumer_group=kafka_consumer_group_id
     )
 
-    input_topic = app.topic(name=kafka_input_topic, value_deserializer="json")
+    input_topic = app.topic(
+        name=kafka_input_topic,
+        value_deserializer="json",
+        timestamp_extractor=custom_ts_extractor,
+    )
     output_topic = app.topic(name=kafka_output_topic, value_serializer="json")
 
     # Create a Quixstream dataframe
@@ -66,10 +84,11 @@ def transform_trade_to_ohlcv(
 
     # Create the 1-min candles
     sdf = (
-        sdf.tumbling_window(duration_ms=timedelta(seconds=ohlcv_window_seconds))
-        .reduce(initializer=init_ohlcv_candle, reducer=update_ohlcv_candle)
-        .current() # FIXME: switch to final
-        # .final()
+        sdf.tumbling_window(duration_ms=timedelta(seconds=ohlcv_window_seconds)).reduce(
+            initializer=init_ohlcv_candle, reducer=update_ohlcv_candle
+        )
+        # .current()
+        .final()
     )
 
     sdf.update(logger.debug)
@@ -92,10 +111,12 @@ def transform_trade_to_ohlcv(
 
 
 if __name__ == "__main__":
+    from src.config import config
+
     transform_trade_to_ohlcv(
-        kafka_broker_address="localhost:19092",
-        kafka_input_topic="trade",
-        kafka_output_topic="ohlcv",
-        kafka_consumer_group_id="consumer_group_trade_to_ohlcv",
-        ohlcv_window_seconds=60,
+        kafka_broker_address=config.kafka_broker_address,
+        kafka_input_topic=config.kafka_input_topic,
+        kafka_output_topic=config.kafka_output_topic,
+        kafka_consumer_group_id=config.kafka_consumer_group,
+        ohlcv_window_seconds=config.ohlcv_window_seconds,
     )
