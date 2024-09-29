@@ -1,10 +1,11 @@
 import hopsworks
 import pandas as pd
+
 from src.config import hopsworks_config as config
 
 
 def push_value_to_feature_group(
-    value: dict,
+    value: list[dict],
     feature_group_name: str,
     feature_group_version: int,
     feature_group_primary_keys: list[str],
@@ -41,7 +42,7 @@ def push_value_to_feature_group(
     )
 
     # Transform the value dict into a pandas dataframe
-    value_df = pd.DataFrame([value])
+    value_df = pd.DataFrame(value)
 
     feature_group.insert(
         value_df,

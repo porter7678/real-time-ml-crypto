@@ -13,6 +13,7 @@ class Config(BaseSettings):
     feature_group_primary_keys: list[str]
     feature_group_event_time: str
     start_offline_materialization: bool
+    batch_size: int = 1
 
 
 class HopsworksConfig(BaseSettings):

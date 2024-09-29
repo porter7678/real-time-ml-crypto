@@ -2,6 +2,7 @@ import json
 
 from loguru import logger
 from quixstreams import Application
+
 from src.hopsworks_api import push_value_to_feature_group
 
 
@@ -14,6 +15,7 @@ def topic_to_feature_store(
     feature_group_primary_keys: list[str],
     feature_group_event_time: str,
     start_offline_materialization: bool,
+    batch_size: int,
 ):
     """
     Reads incoming messages from a Kafka topic and writes them to a feature store.
@@ -27,6 +29,8 @@ def topic_to_feature_store(
         feature_group_primary_keys: The primary keys of the feature group.
         feature_group_event_time: The event time of the feature group.
         start_offline_materialization: Whether to start the offline materialization
+        batch_size: The number of messages to accumulate in memory before pushing
+            to the feature store.
 
     Returns:
         None
@@ -36,6 +40,7 @@ def topic_to_feature_store(
         consumer_group=kafka_consumer_group,
     )
 
+    batch = []
     with app.get_consumer() as consumer:
         consumer.subscribe(topics=[kafka_input_topic])
 
@@ -52,14 +57,28 @@ def topic_to_feature_store(
             # decode the message bytes into a dict
             value = json.loads(value.decode("utf-8"))
 
+            # Append the message to the batch
+            batch.append(value)
+
+            # If the batch is not full, continue
+            if len(batch) < batch_size:
+                logger.debug(f"Batch size: {len(batch)} < {batch_size}. Continuing...")
+                continue
+
+            logger.debug(
+                f"Batch size: {len(batch)} >= {batch_size}. Pushing to feature store..."
+            )
             push_value_to_feature_group(
-                value,
+                batch,
                 feature_group_name,
                 feature_group_version,
                 feature_group_primary_keys,
                 feature_group_event_time,
                 start_offline_materialization,
             )
+
+            # Clear the batch
+            batch = []
 
 
 if __name__ == "__main__":
@@ -74,4 +93,5 @@ if __name__ == "__main__":
         feature_group_primary_keys=config.feature_group_primary_keys,
         feature_group_event_time=config.feature_group_event_time,
         start_offline_materialization=config.start_offline_materialization,
+        batch_size=config.batch_size,
     )

@@ -2,7 +2,7 @@ run-live-dev:
 	cp live.dev.env .env
 	poetry run python src/main.py
 
-run-historical-dev: # TODO: Test
+run-historical-dev:
 	cp historical.dev.env .env
 	poetry run python src/main.py
 
@@ -15,7 +15,7 @@ run-live: build
 		--env-file live.prod.env \
 		trade_to_ohlc
 
-run-historical: build # TODO: Test
+run-historical: build
 	docker run \
 		--network=redpanda_network \
 		--env-file historical.prod.env \
