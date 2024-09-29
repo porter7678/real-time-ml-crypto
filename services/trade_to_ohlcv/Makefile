@@ -7,16 +7,16 @@ run-historical-dev:
 	poetry run python src/main.py
 
 build:
-	docker build -t trade_to_ohlc .
+	docker build -t trade_to_ohlcv .
 
 run-live: build
 	docker run \
 		--network=redpanda_network \
 		--env-file live.prod.env \
-		trade_to_ohlc
+		trade_to_ohlcv
 
 run-historical: build
 	docker run \
 		--network=redpanda_network \
 		--env-file historical.prod.env \
-		trade_to_ohlc
+		trade_to_ohlcv

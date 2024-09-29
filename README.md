@@ -13,8 +13,12 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
     - [X] Adjust timestmps used to bucket trades into windows (trade to ohlcv)
     - [X] Save historical ohlcv features in batches to the offline store (topic to feature store)
 
-
-
+ - [X] Dockerize real-time feature pipeline
+ - [X] Dockerize backfill feature pipeline (generate training data)
+ - [ ] Start on training pipeline
+   - [ ] Read data from store (write a class)
+   - [ ] Build a baseline model
+   - [ ] Integrate training with CometML
 
 
 
