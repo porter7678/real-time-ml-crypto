@@ -61,7 +61,9 @@ def topic_to_feature_store(
             batch.append(value)
 
             # If the batch is not full, continue
-            if len(batch) < batch_size:
+            if (
+                len(batch) < batch_size
+            ):  # TODO: Make sure the last batch gets pushed even if not full
                 logger.debug(f"Batch size: {len(batch)} < {batch_size}. Continuing...")
                 continue
 

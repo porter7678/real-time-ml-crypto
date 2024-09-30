@@ -40,6 +40,8 @@ def produce_trades(
 
                 logger.debug(f"Pushed trade to Kafka: {trade}")
 
+    logger.info("Finished producing trades")
+
 
 if __name__ == "__main__":
     from src.config import config
