@@ -1,6 +1,5 @@
 from loguru import logger
 from quixstreams import Application
-
 from src.trade_data_source import Trade, TradeSource
 
 

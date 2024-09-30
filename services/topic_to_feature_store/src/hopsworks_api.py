@@ -1,6 +1,5 @@
 import hopsworks
 import pandas as pd
-
 from src.config import hopsworks_config as config
 
 

@@ -2,7 +2,6 @@ import json
 
 from loguru import logger
 from quixstreams import Application
-
 from src.hopsworks_api import push_value_to_feature_group
 
 

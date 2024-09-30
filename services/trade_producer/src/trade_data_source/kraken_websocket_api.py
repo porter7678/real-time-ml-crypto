@@ -2,9 +2,8 @@ import json
 from datetime import datetime, timezone
 
 from loguru import logger
-from websocket import create_connection
-
 from src.trade_data_source import Trade, TradeSource
+from websocket import create_connection
 
 
 class KrakenWebsocketAPI(TradeSource):

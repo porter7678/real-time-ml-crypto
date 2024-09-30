@@ -11,6 +11,7 @@ class Config(BaseSettings):
     ohlcv_window_sec: int
     product_id: str
     last_n_days: int
+    forecast_steps: int
 
 
 class HopsworksConfig(BaseSettings):

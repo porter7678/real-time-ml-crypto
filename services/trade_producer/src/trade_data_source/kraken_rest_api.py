@@ -1,12 +1,11 @@
-from typing import List, Optional, Tuple
-from loguru import logger
 import json
-from time import sleep
 from pathlib import Path
+from time import sleep
+from typing import List, Optional, Tuple
 
 import requests
-
-from src.trade_data_source.base import TradeSource, Trade
+from loguru import logger
+from src.trade_data_source.base import Trade, TradeSource
 
 
 class KrakenRestAPI(TradeSource):

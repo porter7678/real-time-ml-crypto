@@ -1,13 +1,12 @@
 import os
-from typing import List, Optional, Tuple, Dict, Any
 import time
+from typing import Any, Dict, List, Optional, Tuple
 
-from loguru import logger
-import pandas as pd
 import hopsworks
-from hsfs.feature_view import FeatureView
+import pandas as pd
 from hsfs.feature_store import FeatureStore
-
+from hsfs.feature_view import FeatureView
+from loguru import logger
 from src.config import HopsworksConfig
 
 

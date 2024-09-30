@@ -17,7 +17,7 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
  - [X] Dockerize backfill feature pipeline (generate training data)
  - [ ] Start on training pipeline
    - [X] Read data from store (write a class)
-   - [ ] Build a baseline model
+   - [X] Build a baseline model
    - [ ] Integrate training with CometML
 
 
