@@ -22,7 +22,9 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
  - [X] Build an ML model
     - [X] Add an xgboost model
     - [X] Engineer features
-
+    - [X] Tune hyperparameter
+    - [X] Push model to registry
+ - [ ] Dockerize training service
 
 
   - [ ] Make the trade producer produce data for multiple product ids

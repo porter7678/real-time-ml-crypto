@@ -12,6 +12,8 @@ class Config(BaseSettings):
     product_id: str
     last_n_days: int
     forecast_steps: int
+    n_search_trials: int
+    n_splits: int
 
 
 class HopsworksConfig(BaseSettings):

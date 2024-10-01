@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 
 from loguru import logger
-from src.trade_data_source import Trade, TradeSource
+from src.trade_data_source.base import Trade, TradeSource
 from websocket import create_connection
 
 

@@ -57,6 +57,7 @@ if __name__ == "__main__":
     elif config.live_or_historical == "historical":
         from src.trade_data_source import KrakenRestAPI
 
+        logger.debug(f"Fetching trades for the last {config.last_n_days} days")
         kraken_api = KrakenRestAPI(
             product_id=config.product_id, last_n_days=config.last_n_days
         )

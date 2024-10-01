@@ -1,3 +1,7 @@
+import joblib
+import os
+
+import hashlib
 from loguru import logger
 from comet_ml import Experiment
 from sklearn.metrics import mean_absolute_error
@@ -6,7 +10,9 @@ from xgboost import XGBRegressor
 from src.config import HopsworksConfig, CometConfig
 from src.feature_engineering import add_technical_indicators
 from src.models.current_price_baseline import CurrentPriceBaseline
+from src.models.xgboost_model import XGBoostModel
 from src.ohlcv_data_reader import OhlcDataReader
+from src.utils import hash_dataframe
 
 
 def train_model(
@@ -21,6 +27,8 @@ def train_model(
     last_n_days: int,
     forecast_steps: int,
     perc_test_data: float = 0.3,
+    n_search_trials: int = 10,
+    n_splits: int = 3,
 ):
     """
     Reads features from the feature store
@@ -39,6 +47,8 @@ def train_model(
         last_n_days: The number of days to look back.
         forecast_steps: The number of steps to forecast.
         perc_test_data: The percentage of data to use for testing
+        n_search_trials: The number of search trials for hyperparameter optimization.
+        n_splits: The number of splits for cross-validation.
 
     Returns:
         None
@@ -48,6 +58,10 @@ def train_model(
         api_key=comet_config.comet_api_key,
         project_name=comet_config.comet_project_name,
     )
+    experiment.log_parameter("last_n_days", last_n_days)
+    experiment.log_parameter("forecast_steps", forecast_steps)
+    experiment.log_parameter("n_search_trials", n_search_trials)
+    experiment.log_parameter("n_splits", n_splits)
 
     # Load (sorted) feature data from the feature store
     ohlcv_data_reader = OhlcDataReader(
@@ -65,6 +79,10 @@ def train_model(
     )
     logger.debug(f"Loaded {len(ohlcv_data_raw)} rows of data")
     experiment.log_parameter("data_size", len(ohlcv_data_raw))
+
+    # Log a hash of the data
+    data_hash = hash_dataframe(ohlcv_data_raw)
+    experiment.log_parameter("data_hash", data_hash)
 
     # Create features
     ohlcv_data = ohlcv_data_raw[["open", "high", "low", "close", "volume"]]
@@ -111,21 +129,46 @@ def train_model(
     logger.info(f"MAE baseline: {mae_current_price:.2f}")
     experiment.log_metric("mae_current_price_baseline", mae_current_price)
 
-    # Compute mae on the training set as a sanity check
-    y_pred_train = current_price_model.predict(X_train)
-    mae_train = mean_absolute_error(y_train, y_pred_train)
-    logger.info(f"MAE train: {mae_train:.2f}")
-    experiment.log_metric("mae_train", mae_train)
-
     # Train an xgboost model
-    xgb_model = XGBRegressor()
-    xgb_model.fit(X_train, y_train)
+    xgb_model = XGBoostModel()
+    xgb_model.fit(
+        X_train,
+        y_train,
+        n_search_trials=n_search_trials,
+        n_splits=n_splits,
+    )
+
+    # Evaluate the model
     y_pred = xgb_model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     logger.info(f"MAE: {mae:.2f}")
     experiment.log_metric("mae", mae)
 
-    # Save the model to the model registry
+    # Compute mae on the training set as a sanity check
+    y_pred_train = xgb_model.predict(X_train)
+    mae_train = mean_absolute_error(y_train, y_pred_train)
+    logger.info(f"MAE train: {mae_train:.2f}")
+    experiment.log_metric("mae_train", mae_train)
+
+    # Save the model locally
+    model_name = f"price_predictor_{product_id.replace('/', '_')}_{ohlcv_window_sec}s_{forecast_steps}steps"
+    local_model_path = f"{model_name}.joblib"
+    joblib.dump(xgb_model.get_model_obj(), local_model_path)
+
+    # Log model to Comet
+    experiment.log_model(
+        name=model_name,
+        file_or_folder=local_model_path,
+        overwrite=True,
+    )
+
+    # Register model in Comet
+    experiment.register_model(
+        model_name=model_name,
+    )
+
+    logger.info(f"Model registered in Comet: {model_name}")
+    os.remove(local_model_path)
     experiment.end()
 
 
@@ -144,4 +187,6 @@ if __name__ == "__main__":
         product_id=config.product_id,
         last_n_days=config.last_n_days,
         forecast_steps=config.forecast_steps,
+        n_search_trials=config.n_search_trials,
+        n_splits=config.n_splits,
     )

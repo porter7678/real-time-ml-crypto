@@ -16,4 +16,4 @@ run-live: build
 		--env-file credentials.env \
 		topic_to_feature_store
 
-# TODO: Do I want a run-historical here?ssssss
+# TODO: Do I want a run-historical here?
