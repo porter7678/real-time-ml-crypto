@@ -1,11 +1,15 @@
 from loguru import logger
+from comet_ml import Experiment
 from sklearn.metrics import mean_absolute_error
-from src.config import HopsworksConfig
+
+
+from src.config import HopsworksConfig, CometConfig
 from src.models.current_price_baseline import CurrentPriceBaseline
 from src.ohlcv_data_reader import OhlcDataReader
 
 
 def train_model(
+    comet_config: CometConfig,
     hopsworks_config: HopsworksConfig,
     feature_view_name: str,
     feature_view_version: int,
@@ -23,6 +27,7 @@ def train_model(
     Saves the model to the model registry
 
     Args:
+        comet_config: The configuration for Comet.
         hopsworks_config: The configuration for Hopsworks.
         feature_view_name: The name of the feature view.
         feature_view_version: The version of the feature view.
@@ -37,6 +42,12 @@ def train_model(
     Returns:
         None
     """
+    # Create a Comet experiment
+    experiment = Experiment(
+        api_key=comet_config.comet_api_key,
+        project_name=comet_config.comet_project_name,
+    )
+
     # Load (sorted) feature data from the feature store
     ohlcv_data_reader = OhlcDataReader(
         ohlc_window_sec=ohlcv_window_sec,
@@ -52,6 +63,7 @@ def train_model(
         last_n_days=last_n_days,
     )
     logger.debug(f"Loaded {len(ohlcv_data)} rows of data")
+    experiment.log_parameter("data_size", len(ohlcv_data))
 
     # Split the data into training and testing sets
     test_size = int(len(ohlcv_data) * perc_test_data)
@@ -78,6 +90,10 @@ def train_model(
     logger.debug(f"y_train shape: {y_train.shape}")
     logger.debug(f"X_test shape: {X_test.shape}")
     logger.debug(f"y_test shape: {y_test.shape}")
+    experiment.log_parameter("X_train_shape", X_train.shape)
+    experiment.log_parameter("y_train_shape", y_train.shape)
+    experiment.log_parameter("X_test_shape", X_test.shape)
+    experiment.log_parameter("y_test_shape", y_test.shape)
 
     # Train a model
     model = CurrentPriceBaseline()
@@ -87,15 +103,18 @@ def train_model(
     y_pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
     logger.info(f"Mean absolute error: {mae:.2f}")
+    experiment.log_metric("mae", mae)
 
     # Save the model to the model registry
+    experiment.end()
 
 
 if __name__ == "__main__":
 
-    from src.config import config, hopsworks_config
+    from src.config import config, hopsworks_config, comet_config
 
     train_model(
+        comet_config=comet_config,
         hopsworks_config=hopsworks_config,
         feature_view_name=config.feature_view_name,
         feature_view_version=config.feature_view_version,

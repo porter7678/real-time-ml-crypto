@@ -164,3 +164,5 @@ cython_debug/
 .vscode
 services/trade_to_ohlcv/state
 **/credentials.env
+comet.credentials.env
+hopsworks.credentials.env

@@ -15,11 +15,19 @@ class Config(BaseSettings):
 
 
 class HopsworksConfig(BaseSettings):
-    model_config = {"env_file": "credentials.env"}
+    model_config = {"env_file": "hopsworks.credentials.env"}
 
     hopsworks_project_name: str
     hopsworks_api_key: str
 
 
+class CometConfig(BaseSettings):
+    model_config = {"env_file": "comet.credentials.env"}
+
+    comet_api_key: str
+    comet_project_name: str
+
+
 config = Config()
 hopsworks_config = HopsworksConfig()
+comet_config = CometConfig()

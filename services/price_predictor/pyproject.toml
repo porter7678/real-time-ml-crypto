@@ -12,6 +12,7 @@ hopsworks = "^3.7.0"
 loguru = "^0.7.2"
 pandas = "<2.2.0"
 scikit-learn = "^1.5.2"
+comet-ml = "^3.47.0"
 
 
 [build-system]
