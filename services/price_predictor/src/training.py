@@ -155,19 +155,26 @@ def train_model(
     local_model_path = f"{model_name}.joblib"
     joblib.dump(xgb_model.get_model_obj(), local_model_path)
 
-    # Log model to Comet
+    # Attach the model artifact to the Comet experiment
     experiment.log_model(
         name=model_name,
         file_or_folder=local_model_path,
         overwrite=True,
     )
 
-    # Register model in Comet
-    experiment.register_model(
-        model_name=model_name,
-    )
+    if mae < mae_current_price:
+        # Register model in Comet
+        logger.info(
+            f"Model is better than baseline. Registering model in Comet: {model_name}"
+        )
+        experiment.register_model(
+            model_name=model_name,
+        )
+    else:
+        logger.info(
+            f"Model is not better than baseline. Not registering model in Comet: {model_name}"
+        )
 
-    logger.info(f"Model registered in Comet: {model_name}")
     os.remove(local_model_path)
     experiment.end()
 
