@@ -4,6 +4,7 @@ from sklearn.metrics import mean_absolute_error
 from xgboost import XGBRegressor
 
 from src.config import HopsworksConfig, CometConfig
+from src.feature_engineering import add_technical_indicators
 from src.models.current_price_baseline import CurrentPriceBaseline
 from src.ohlcv_data_reader import OhlcDataReader
 
@@ -65,21 +66,23 @@ def train_model(
     logger.debug(f"Loaded {len(ohlcv_data_raw)} rows of data")
     experiment.log_parameter("data_size", len(ohlcv_data_raw))
 
-    # Select features
+    # Create features
     ohlcv_data = ohlcv_data_raw[["open", "high", "low", "close", "volume"]]
+    ohlcv_data = add_technical_indicators(ohlcv_data)
+
+    # Create target
+    ohlcv_data.loc[:, "target_price"] = ohlcv_data["close"].shift(-forecast_steps)
+
+    # Drop rows with NaN values
+    n_rows_before = len(ohlcv_data)
+    ohlcv_data = ohlcv_data.dropna()
+    n_rows_after = len(ohlcv_data)
+    logger.debug(f"Dropped {n_rows_before - n_rows_after} rows with NaN values")
 
     # Split the data into training and testing sets
     test_size = int(len(ohlcv_data) * perc_test_data)
     train_df = ohlcv_data[:-test_size]
     test_df = ohlcv_data[-test_size:]
-
-    # Create my target column (future price)
-    train_df.loc[:, "target_price"] = train_df["close"].shift(-forecast_steps)
-    test_df.loc[:, "target_price"] = test_df["close"].shift(-forecast_steps)
-
-    # Remove rows with NaN values
-    train_df = train_df.dropna()
-    test_df = test_df.dropna()
     logger.debug(f"Train size: {len(train_df)}, Test size: {len(test_df)}")
 
     # Split data into features and target

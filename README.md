@@ -19,9 +19,9 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
    - [X] Read data from store (write a class)
    - [X] Build a baseline model
    - [X] Integrate training with CometML
- - [ ] Build an ML model
+ - [X] Build an ML model
     - [X] Add an xgboost model
-    - [ ] Engineer features
+    - [X] Engineer features
 
 
 
