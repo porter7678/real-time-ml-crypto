@@ -1,7 +1,7 @@
 from loguru import logger
 from comet_ml import Experiment
 from sklearn.metrics import mean_absolute_error
-
+from xgboost import XGBRegressor
 
 from src.config import HopsworksConfig, CometConfig
 from src.models.current_price_baseline import CurrentPriceBaseline
@@ -58,12 +58,15 @@ def train_model(
         feature_group_version=feature_group_version,
     )
 
-    ohlcv_data = ohlcv_data_reader.read_from_offline_store(
+    ohlcv_data_raw = ohlcv_data_reader.read_from_offline_store(
         product_id=product_id,
         last_n_days=last_n_days,
     )
-    logger.debug(f"Loaded {len(ohlcv_data)} rows of data")
-    experiment.log_parameter("data_size", len(ohlcv_data))
+    logger.debug(f"Loaded {len(ohlcv_data_raw)} rows of data")
+    experiment.log_parameter("data_size", len(ohlcv_data_raw))
+
+    # Select features
+    ohlcv_data = ohlcv_data_raw[["open", "high", "low", "close", "volume"]]
 
     # Split the data into training and testing sets
     test_size = int(len(ohlcv_data) * perc_test_data)
@@ -71,8 +74,8 @@ def train_model(
     test_df = ohlcv_data[-test_size:]
 
     # Create my target column (future price)
-    train_df["target_price"] = train_df["close"].shift(-forecast_steps)
-    test_df["target_price"] = test_df["close"].shift(-forecast_steps)
+    train_df.loc[:, "target_price"] = train_df["close"].shift(-forecast_steps)
+    test_df.loc[:, "target_price"] = test_df["close"].shift(-forecast_steps)
 
     # Remove rows with NaN values
     train_df = train_df.dropna()
@@ -95,14 +98,28 @@ def train_model(
     experiment.log_parameter("X_test_shape", X_test.shape)
     experiment.log_parameter("y_test_shape", y_test.shape)
 
-    # Train a model
-    model = CurrentPriceBaseline()
-    model.fit(X_train, y_train)
+    # Build a baseline model
+    current_price_model = CurrentPriceBaseline()
+    current_price_model.fit(X_train, y_train)
 
     # Evaluate the model
-    y_pred = model.predict(X_test)
+    y_pred_current_price = current_price_model.predict(X_test)
+    mae_current_price = mean_absolute_error(y_test, y_pred_current_price)
+    logger.info(f"MAE baseline: {mae_current_price:.2f}")
+    experiment.log_metric("mae_current_price_baseline", mae_current_price)
+
+    # Compute mae on the training set as a sanity check
+    y_pred_train = current_price_model.predict(X_train)
+    mae_train = mean_absolute_error(y_train, y_pred_train)
+    logger.info(f"MAE train: {mae_train:.2f}")
+    experiment.log_metric("mae_train", mae_train)
+
+    # Train an xgboost model
+    xgb_model = XGBRegressor()
+    xgb_model.fit(X_train, y_train)
+    y_pred = xgb_model.predict(X_test)
     mae = mean_absolute_error(y_test, y_pred)
-    logger.info(f"Mean absolute error: {mae:.2f}")
+    logger.info(f"MAE: {mae:.2f}")
     experiment.log_metric("mae", mae)
 
     # Save the model to the model registry
