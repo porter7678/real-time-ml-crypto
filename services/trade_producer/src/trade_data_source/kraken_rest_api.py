@@ -24,14 +24,14 @@ class KrakenRestAPI(TradeSource):
             KrakenRestAPISingleProduct(product_id, last_n_days, cache_dir)
             for product_id in product_ids
         ]
-    
+
     def get_trades(self) -> List[Trade]:
         # Fetch trades from all sources
         trades = []
         for api in self.single_product_apis:
-            trades.extend(api.get_trades())
+            if not api.is_done():
+                trades.extend(api.get_trades())
         return trades
-
 
     def is_done(self) -> bool:
         # Return True if all sources are done

@@ -24,7 +24,7 @@ A full-stack data science / MLOps tool for predicting crypto prices in real-time
     - [X] Engineer features
     - [X] Tune hyperparameter
     - [X] Push model to registry
- - [ ] Dockerize training service
+ - [X] Dockerize training service
 
 
   - [ ] Make the trade producer produce data for multiple product ids

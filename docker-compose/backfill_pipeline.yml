@@ -11,8 +11,14 @@ services:
       dockerfile: Dockerfile
     networks:
       - redpanda_network
-    env_file:
-      - ../services/trade_producer/historical.prod.env
+    environment:
+      - KAFKA_BROKER_ADDRESS=redpanda:9092
+      - KAFKA_TOPIC=trade_historical_${BACKFILL_JOB_ID}
+      - PRODUCT_IDS=["BTC/USD", "ETH/USD"]
+      - LIVE_OR_HISTORICAL=historical
+      - LAST_N_DAYS=90
+    # env_file:
+    #   - ../services/trade_producer/historical.prod.env
 
   trade_to_ohlcv:
     build:
@@ -20,8 +26,16 @@ services:
       dockerfile: Dockerfile
     networks:
       - redpanda_network
-    env_file:
-      - ../services/trade_to_ohlcv/historical.prod.env
+    environment:
+      - KAFKA_BROKER_ADDRESS=redpanda:9092
+      - KAFKA_INPUT_TOPIC=trade_historical_${BACKFILL_JOB_ID}
+      - KAFKA_OUTPUT_TOPIC=ohlcv_historical_${BACKFILL_JOB_ID}
+      - KAFKA_CONSUMER_GROUP=trade_to_ohlcv_historical_consumer_group_${BACKFILL_JOB_ID}
+      - OHLCV_WINDOW_SECONDS=60
+    # env_file:
+    #   - ../services/trade_to_ohlcv/historical.prod.env
+    deploy:
+      replicas: 2
 
   topic_to_feature_store:
     build:
@@ -29,6 +43,16 @@ services:
       dockerfile: Dockerfile
     networks:
       - redpanda_network
-    env_file:
-      - ../services/topic_to_feature_store/historical.prod.env
+    environment:
+      - KAFKA_BROKER_ADDRESS=redpanda:9092
+      - KAFKA_INPUT_TOPIC=ohlcv_historical_${BACKFILL_JOB_ID}
+      - KAFKA_CONSUMER_GROUP=ohlcv_historical_to_feature_store_consumer_group_${BACKFILL_JOB_ID}
+      - FEATURE_GROUP_NAME=ohlcv_feature_group
+      - FEATURE_GROUP_VERSION=1
+      - FEATURE_GROUP_PRIMARY_KEYS=["product_id", "timestamp_ms"]
+      - FEATURE_GROUP_EVENT_TIME=timestamp_ms
+      - START_OFFLINE_MATERIALIZATION=True
+      - BATCH_SIZE=40000
+    # env_file:
+      # - ../services/topic_to_feature_store/historical.prod.env
       - ../services/topic_to_feature_store/credentials.env
