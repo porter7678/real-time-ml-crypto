@@ -48,7 +48,7 @@ if __name__ == "__main__":
     if config.live_or_historical == "live":
         from src.trade_data_source import KrakenWebsocketAPI
 
-        kraken_api = KrakenWebsocketAPI(product_id=config.product_id)
+        kraken_api = KrakenWebsocketAPI(product_ids=config.product_ids)
         produce_trades(
             kafka_broker_address=config.kafka_broker_address,
             kafka_topic=config.kafka_topic,
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
         logger.debug(f"Fetching trades for the last {config.last_n_days} days")
         kraken_api = KrakenRestAPI(
-            product_id=config.product_id, last_n_days=config.last_n_days
+            product_ids=config.product_ids, last_n_days=config.last_n_days
         )
         produce_trades(
             kafka_broker_address=config.kafka_broker_address,

@@ -9,6 +9,42 @@ from src.trade_data_source.base import Trade, TradeSource
 
 
 class KrakenRestAPI(TradeSource):
+    """
+    A class to fetch historical trade data from the Kraken REST API for multiple products.
+    """
+
+    def __init__(
+        self,
+        product_ids: List[str],
+        last_n_days: int,
+        cache_dir: Optional[str] = None,
+    ) -> None:
+        # Init a list of KrakenRestAPISingleProduct instances
+        self.single_product_apis = [
+            KrakenRestAPISingleProduct(product_id, last_n_days, cache_dir)
+            for product_id in product_ids
+        ]
+    
+    def get_trades(self) -> List[Trade]:
+        # Fetch trades from all sources
+        trades = []
+        for api in self.single_product_apis:
+            trades.extend(api.get_trades())
+        return trades
+
+
+    def is_done(self) -> bool:
+        # Return True if all sources are done
+        for api in self.single_product_apis:
+            if not api.is_done():
+                return False
+        return True
+
+
+class KrakenRestAPISingleProduct(TradeSource):
+    """
+    A class to fetch historical trade data from the Kraken REST API for a single product.
+    """
 
     URL = "https://api.kraken.com/0/public/Trades?pair={product_id}&since={since_sec}"
 

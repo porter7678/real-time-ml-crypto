@@ -6,7 +6,7 @@ class Config(BaseSettings):
 
     kafka_broker_address: str
     kafka_topic: str
-    product_id: str
+    product_ids: list[str]
 
     live_or_historical: str | None = None
     last_n_days: int | None = None
