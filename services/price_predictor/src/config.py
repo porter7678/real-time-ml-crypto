@@ -14,6 +14,9 @@ class Config(BaseSettings):
     forecast_steps: int
     n_search_trials: int
     n_splits: int
+    last_n_minutes: int
+    ml_model_status: str
+    api_supported_product_ids: list[str]
 
 
 class HopsworksConfig(BaseSettings):
@@ -28,6 +31,7 @@ class CometConfig(BaseSettings):
 
     comet_api_key: str
     comet_project_name: str
+    comet_workspace: str
 
 
 config = Config()

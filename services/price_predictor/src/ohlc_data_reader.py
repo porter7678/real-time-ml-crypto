@@ -7,6 +7,7 @@ import pandas as pd
 from hsfs.feature_store import FeatureStore
 from hsfs.feature_view import FeatureView
 from loguru import logger
+
 from src.config import HopsworksConfig
 
 
@@ -59,7 +60,7 @@ class OhlcDataReader:
         primary_keys = [
             {
                 "product_id": product_id,
-                "timestamp": timestamp,
+                "timestamp_ms": timestamp,
             }
             for timestamp in timestamp_keys
         ]
@@ -97,9 +98,7 @@ class OhlcDataReader:
         )
 
         # features.sort_values(by='timestamp', inplace=True)
-        features = features.sort_values(by="timestamp").reset_index(drop=True)
-
-        # breakpoint()
+        features = features.sort_values(by="timestamp_ms").reset_index(drop=True)
 
         return features
 
@@ -202,8 +201,6 @@ class OhlcDataReader:
         features = features[features["timestamp_ms"] <= to_timestamp_ms]
         # sort the features by timestamp (ascending)
         features = features.sort_values(by="timestamp_ms").reset_index(drop=True)
-
-        # breakpoint()
 
         return features
 

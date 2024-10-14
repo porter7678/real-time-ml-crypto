@@ -1,5 +1,31 @@
-import talib
 import pandas as pd
+import talib
+
+
+def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add temporal features to the dataframe.
+
+    Args:
+        df (pd.DataFrame): The input dataframe is expected to have the following columns:
+        - 'timestamp_ms'
+
+    Returns:
+        pd.DataFrame: The dataframe with the original features and the new temporal features.
+
+        The output dataframe will have the following columns:
+        - 'hour'
+        - 'day'
+        - 'month'
+        - 'weekday'
+    """
+    df["hour"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.hour
+    df["day"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.day
+    df["month"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.month
+    df["weekday"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.weekday
+
+    df = df.drop(columns=["timestamp_ms"])
+    return df
 
 
 def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:

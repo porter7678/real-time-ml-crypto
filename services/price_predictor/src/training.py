@@ -1,17 +1,19 @@
-import joblib
+import hashlib
 import os
 
-import hashlib
-from loguru import logger
+import joblib
 from comet_ml import Experiment
+from loguru import logger
 from sklearn.metrics import mean_absolute_error
 from xgboost import XGBRegressor
 
-from src.config import HopsworksConfig, CometConfig
-from src.feature_engineering import add_technical_indicators
+from src.config import CometConfig, HopsworksConfig
+from src.feature_engineering import add_technical_indicators, add_temporal_features
+from src.model_registry import get_model_name
 from src.models.current_price_baseline import CurrentPriceBaseline
 from src.models.xgboost_model import XGBoostModel
-from src.ohlcv_data_reader import OhlcDataReader
+from src.ohlc_data_reader import OhlcDataReader
+from src.preprocessing import keep_only_numeric_columns
 from src.utils import hash_dataframe
 
 
@@ -29,6 +31,7 @@ def train_model(
     perc_test_data: float = 0.3,
     n_search_trials: int = 10,
     n_splits: int = 3,
+    last_n_minutes: int = 30,
 ):
     """
     Reads features from the feature store
@@ -49,6 +52,7 @@ def train_model(
         perc_test_data: The percentage of data to use for testing
         n_search_trials: The number of search trials for hyperparameter optimization.
         n_splits: The number of splits for cross-validation.
+        last_n_minutes: The number of minutes to look back
 
     Returns:
         None
@@ -62,6 +66,13 @@ def train_model(
     experiment.log_parameter("forecast_steps", forecast_steps)
     experiment.log_parameter("n_search_trials", n_search_trials)
     experiment.log_parameter("n_splits", n_splits)
+
+    # Log feature view information
+    experiment.log_parameter("feature_view_name", feature_view_name)
+    experiment.log_parameter("feature_view_version", feature_view_version)
+
+    # log number of minutes of data in the past I need to generate predictions
+    experiment.log_parameter("last_n_minutes", last_n_minutes)
 
     # Load (sorted) feature data from the feature store
     ohlcv_data_reader = OhlcDataReader(
@@ -85,8 +96,11 @@ def train_model(
     experiment.log_parameter("data_hash", data_hash)
 
     # Create features
-    ohlcv_data = ohlcv_data_raw[["open", "high", "low", "close", "volume"]]
+    ohlcv_data = keep_only_numeric_columns(ohlcv_data_raw)
     ohlcv_data = add_technical_indicators(ohlcv_data)
+    ohlcv_data = add_temporal_features(ohlcv_data)
+    experiment.log_parameter("features", ohlcv_data.columns)
+    experiment.log_parameter("n_features", len(ohlcv_data.columns))
 
     # Create target
     ohlcv_data.loc[:, "target_price"] = ohlcv_data["close"].shift(-forecast_steps)
@@ -151,7 +165,7 @@ def train_model(
     experiment.log_metric("mae_train", mae_train)
 
     # Save the model locally
-    model_name = f"price_predictor_{product_id.replace('/', '_')}_{ohlcv_window_sec}s_{forecast_steps}steps"
+    model_name = get_model_name(product_id, ohlcv_window_sec, forecast_steps)
     local_model_path = f"{model_name}.joblib"
     joblib.dump(xgb_model.get_model_obj(), local_model_path)
 
@@ -162,7 +176,7 @@ def train_model(
         overwrite=True,
     )
 
-    if mae < mae_current_price:
+    if mae < mae_current_price or True:  # FIXME: Remove True
         # Register model in Comet
         logger.info(
             f"Model is better than baseline. Registering model in Comet: {model_name}"
@@ -181,7 +195,7 @@ def train_model(
 
 if __name__ == "__main__":
 
-    from src.config import config, hopsworks_config, comet_config
+    from src.config import comet_config, config, hopsworks_config
 
     train_model(
         comet_config=comet_config,

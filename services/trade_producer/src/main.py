@@ -1,6 +1,7 @@
 from loguru import logger
 from quixstreams import Application
 from quixstreams.models import TopicConfig
+
 from src.trade_data_source import Trade, TradeSource
 
 

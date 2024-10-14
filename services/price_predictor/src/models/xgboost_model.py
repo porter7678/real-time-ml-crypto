@@ -1,10 +1,10 @@
 from typing import Optional
 
-from loguru import logger
 import optuna
 import pandas as pd
-from xgboost import XGBRegressor
+from loguru import logger
 from sklearn.metrics import mean_absolute_error
+from xgboost import XGBRegressor
 
 
 class XGBoostModel:
@@ -96,7 +96,6 @@ class XGBoostModel:
                 "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
                 "subsample": trial.suggest_float("subsample", 0.5, 1.0),
                 "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-                # TODO: there is room to improve the search space
             }
 
             # let's split our X_train into n_splits folds with a time-series split

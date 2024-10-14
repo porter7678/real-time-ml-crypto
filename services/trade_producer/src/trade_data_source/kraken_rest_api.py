@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 
 import requests
 from loguru import logger
+
 from src.trade_data_source.base import Trade, TradeSource
 
 
@@ -219,7 +220,6 @@ class KrakenRestAPISingleProduct(TradeSource):
 
         # if ns_to_date(since_ns) == '2024-04-30 18:33:41':
         #     # self.cache._get_file_path(url)
-        #     breakpoint()
 
         return trades
 

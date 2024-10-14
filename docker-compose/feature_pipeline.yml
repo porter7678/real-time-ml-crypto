@@ -13,6 +13,7 @@ services:
       - redpanda_network
     env_file:
       - ../services/trade_producer/live.prod.env
+    restart: always
 
   trade_to_ohlcv:
     build:
@@ -22,6 +23,7 @@ services:
       - redpanda_network
     env_file:
       - ../services/trade_to_ohlcv/live.prod.env
+    restart: always
 
   topic_to_feature_store:
     build:
@@ -32,3 +34,4 @@ services:
     env_file:
       - ../services/topic_to_feature_store/live.prod.env
       - ../services/topic_to_feature_store/credentials.env
+    restart: always
