@@ -24,7 +24,6 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df["month"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.month
     df["weekday"] = pd.to_datetime(df["timestamp_ms"], unit="ms").dt.weekday
 
-    df = df.drop(columns=["timestamp_ms"])
     return df
 
 

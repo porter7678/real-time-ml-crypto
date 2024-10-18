@@ -218,13 +218,15 @@ class OhlcDataReader:
 
 
 if __name__ == "__main__":
+    from src.config import hopsworks_config
 
     ohlc_data_reader = OhlcDataReader(
-        feature_view_name="ohlc_feature_view",
-        feature_view_version=10,
-        feature_group_name="ohlc_feature_group",
-        feature_group_version=3,
         ohlc_window_sec=60,
+        hopsworks_config=hopsworks_config,
+        feature_view_name="ohlcv_feature_view",
+        feature_view_version=1,
+        feature_group_name="ohlcv_feature_group",
+        feature_group_version=1,
     )
 
     # check if reading from the online store works

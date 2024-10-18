@@ -210,4 +210,5 @@ if __name__ == "__main__":
         forecast_steps=config.forecast_steps,
         n_search_trials=config.n_search_trials,
         n_splits=config.n_splits,
+        last_n_minutes=config.last_n_minutes,
     )

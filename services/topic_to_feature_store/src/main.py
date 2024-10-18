@@ -3,7 +3,7 @@ import json
 from loguru import logger
 from quixstreams import Application
 
-from src.hopsworks_api import push_value_to_feature_group
+from src.hopsworks_api import HopsworksAPI
 
 
 def topic_to_feature_store(
@@ -39,6 +39,7 @@ def topic_to_feature_store(
         broker_address=kafka_broker_address,
         consumer_group=kafka_consumer_group,
     )
+    hopsworks_api = HopsworksAPI()
 
     batch = []
     with app.get_consumer() as consumer:
@@ -61,16 +62,17 @@ def topic_to_feature_store(
             batch.append(value)
 
             # If the batch is not full, continue
-            if (
-                len(batch) < batch_size
-            ):  # TODO: Make sure the last batch gets pushed even if not full
+            # TODO: Make sure the last batch gets pushed even if not full
+            if len(batch) < batch_size:
                 logger.debug(f"Batch size: {len(batch)} < {batch_size}. Continuing...")
                 continue
 
             logger.debug(
                 f"Batch size: {len(batch)} >= {batch_size}. Pushing to feature store..."
             )
-            push_value_to_feature_group(
+            if batch_size == 1:
+                logger.debug(f"Batch: {batch}")
+            hopsworks_api.push_value_to_feature_group(
                 batch,
                 feature_group_name,
                 feature_group_version,

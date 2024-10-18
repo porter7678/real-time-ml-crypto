@@ -51,8 +51,8 @@ class KrakenWebsocketAPI(TradeSource):
             trades.append(
                 Trade(
                     product_id=trade["symbol"],
-                    quantity=trade["price"],
-                    price=trade["qty"],
+                    quantity=trade["qty"],
+                    price=trade["price"],
                     timestamp_ms=self.to_ms(trade["timestamp"]),
                 )
             )

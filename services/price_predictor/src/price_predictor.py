@@ -9,7 +9,6 @@ from pydantic import BaseModel
 
 from src.config import CometConfig, HopsworksConfig, comet_config, hopsworks_config
 from src.feature_engineering import add_technical_indicators, add_temporal_features
-from src.hopsworks_api import push_value_to_feature_group
 from src.model_registry import get_model_name
 from src.ohlc_data_reader import OhlcDataReader
 from src.preprocessing import keep_only_numeric_columns
@@ -164,23 +163,22 @@ class PricePredictor:
         and makes a prediction for the next `self.forecast_steps` minutes.
         """
         # read the data from the online feature group
-        ohlcv_data = self.ohlc_data_reader.read_from_online_store(
+        raw_ohlcv_data = self.ohlc_data_reader.read_from_online_store(
             product_id=self.product_id,
             last_n_minutes=self.last_n_minutes,
         )
         logger.debug(
-            f"Read {len(ohlcv_data)} OHLCV candles from the online feature group"
+            f"Read {len(raw_ohlcv_data)} OHLCV candles from the online feature group"
         )
 
         # Preprocess the data and add necessary features
         logger.debug(f"Preprocessing the data and adding necessary features")
-        ohlcv_data = keep_only_numeric_columns(ohlcv_data)
+        ohlcv_data = keep_only_numeric_columns(raw_ohlcv_data)
         ohlcv_data = add_technical_indicators(ohlcv_data)
         ohlcv_data = add_temporal_features(ohlcv_data)
 
         # double check the last row of the dataframe has no missing values
         logger.debug(f"Checking the last row of the dataframe has no missing values")
-        # breakpoint()
         assert (
             ohlcv_data.iloc[-1].isna().sum() == 0
         ), "The last row of the dataframe has missing values"
