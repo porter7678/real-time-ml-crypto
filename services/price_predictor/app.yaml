@@ -61,6 +61,11 @@ variables:
     description: ''
     defaultValue: production
     required: true
+  - name: API_SUPPORTED_PRODUCT_IDS
+    inputType: FreeText
+    description: ''
+    defaultValue: '["BTC/USD"]'
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/training.py
 defaultFile: src/training.py
