@@ -31,6 +31,11 @@ variables:
     description: ''
     defaultValue: timestamp_ms
     required: true
+  - name: START_OFFLINE_MATERIALIZATION
+    inputType: FreeText
+    description: ''
+    defaultValue: false
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
