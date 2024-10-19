@@ -24,7 +24,7 @@ deployments:
         inputType: FreeText
         description: List of currencies to get trades for
         required: true
-        value: '["BTC/USD"]'
+        value: '["BTC/USD", "ETH/USD"]'
       - name: LIVE_OR_HISTORICAL
         inputType: FreeText
         description: ''
@@ -35,6 +35,7 @@ deployments:
 topics:
   - name: trade
     configuration:
+      partitions: 2
       replicationFactor: 2
       retentionInMinutes: 1440
       retentionInBytes: 52428800

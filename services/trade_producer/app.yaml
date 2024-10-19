@@ -9,7 +9,7 @@ variables:
   - name: PRODUCT_IDS
     inputType: FreeText
     description: List of currencies to get trades for
-    defaultValue: '["BTC/USD"]'
+    defaultValue: '["BTC/USD", "ETH/USD"]'
     required: true
   - name: LIVE_OR_HISTORICAL
     inputType: FreeText
