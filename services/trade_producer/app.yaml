@@ -18,8 +18,8 @@ variables:
     required: true
   - name: LAST_N_DAYS
     inputType: FreeText
-    description: ''
-    defaultValue: 90
+    description: Number of days in the past for which we fetch trade data
+    defaultValue: 30
     required: false
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
