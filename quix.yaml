@@ -8,4 +8,10 @@ metadata:
 deployments: []
 
 # This section describes the Topics of the data pipeline
-topics: []
+topics:
+  - name: trade
+    configuration:
+      partitions: 2
+      replicationFactor: 2
+      retentionInMinutes: 1440
+      retentionInBytes: 52428800
