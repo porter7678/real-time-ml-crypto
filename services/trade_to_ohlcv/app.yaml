@@ -6,6 +6,11 @@ variables:
     description: Topic to consume trades from
     defaultValue: trade
     required: true
+  - name: KAFKA_OUTPUT_TOPIC
+    inputType: OutputTopic
+    description: Topic to send candles to
+    defaultValue: ohlcv
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
