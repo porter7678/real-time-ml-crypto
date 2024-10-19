@@ -86,13 +86,12 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     # 3. Relative Strength Index (RSI)
     df["RSI_14"] = talib.RSI(df["close"], timeperiod=14)
 
-    # Removed because I want a shorter lookback period
-    # # 4. Moving Average Convergence Divergence (MACD)
-    # macd, macd_signal, _ = talib.MACD(
-    #     df["close"], fastperiod=12, slowperiod=26, signalperiod=9
-    # )
-    # df["MACD"] = macd
-    # df["MACD_Signal"] = macd_signal
+    # 4. Moving Average Convergence Divergence (MACD)
+    macd, macd_signal, _ = talib.MACD(
+        df["close"], fastperiod=12, slowperiod=26, signalperiod=9
+    )
+    df["MACD"] = macd
+    df["MACD_Signal"] = macd_signal
 
     # 5. Bollinger Bands
     upper, middle, lower = talib.BBANDS(

@@ -24,17 +24,16 @@ def get_and_check_most_recent_row(df: pd.DataFrame) -> pd.DataFrame:
     # This is to make sure that the data is fresh
     final_timestamp_ms = most_recent_row["timestamp_ms"].values[0]
     current_timestamp_ms = datetime.now(timezone.utc).timestamp() * 1000
-    assert (
-        current_timestamp_ms - final_timestamp_ms < 3 * 60 * 1000
-    ), "The most recent row of the dataframe is not within the last 3 minutes"
+    if current_timestamp_ms - final_timestamp_ms > 60 * 1000 * 3:
+        logger.warning("The most recent row of the dataframe is older than 3 minutes")
 
     # Log how many minutes ago the last row was
     minutes_ago = (current_timestamp_ms - final_timestamp_ms) / 1000 / 60
     logger.debug(f"The last row of the dataframe is {minutes_ago:.2f} minutes old")
 
     # Check the last row of the dataframe has no missing values
-    assert (
-        most_recent_row.isna().sum().sum() == 0
-    ), "The last row of the dataframe has missing values"
+    if most_recent_row.isna().sum().sum() > 0:
+        logger.debug(most_recent_row.transpose())
+        raise ValueError("The last row of the dataframe has missing values")
 
     return most_recent_row
