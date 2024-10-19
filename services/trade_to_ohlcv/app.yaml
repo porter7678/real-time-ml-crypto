@@ -1,5 +1,11 @@
 name: trade_to_ohlcv
 language: python
+variables:
+  - name: KAFKA_INPUT_TOPIC
+    inputType: InputTopic
+    description: Topic to consume trades from
+    defaultValue: trade
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
