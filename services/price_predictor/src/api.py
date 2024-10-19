@@ -25,6 +25,7 @@ def predict(product_id: str = Query(..., description="The product ID to predict"
 
         # if we don't have the predictor for this product id, we create it
         if product_id not in predictors:
+            logger.debug(f"Creating predictor for product id: {product_id}")
             predictors[product_id] = PricePredictor.from_model_registry(
                 product_id=product_id,
                 # these are read from the config file
@@ -33,13 +34,17 @@ def predict(product_id: str = Query(..., description="The product ID to predict"
                 forecast_steps=config.forecast_steps,
                 status=config.ml_model_status,
             )
+        else:
+            logger.debug(f"Using existing predictor for product id: {product_id}")
 
         # extract the predictor object for this product id
         predictor = predictors[product_id]
 
         # the ML magic happens here
+        logger.debug("Predicting...")
         prediction = predictor.predict()
 
+        logger.debug("Returning prediction")
         return {"prediction": prediction.to_json()}
         # return prediction.to_json()
 

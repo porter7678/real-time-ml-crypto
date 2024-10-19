@@ -64,7 +64,7 @@ if __name__ == "__main__":
             kafka_broker_address=config.kafka_broker_address,
             kafka_topic=config.kafka_topic,
             trade_data_source=kraken_api,
-            num_partitions=1,
+            num_partitions=1,  # TODO: This might need to increase for multiple currencies
         )
     elif config.live_or_historical == "historical":
         from src.trade_data_source import KrakenRestAPI
