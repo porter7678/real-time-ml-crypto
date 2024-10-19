@@ -1,17 +1,15 @@
 import json
-import os
-from datetime import datetime, timezone
 
 import joblib
 from comet_ml.api import API
 from loguru import logger
 from pydantic import BaseModel
 
-from src.config import CometConfig, HopsworksConfig, comet_config, hopsworks_config
+from src.config import comet_config, hopsworks_config
 from src.feature_engineering import add_technical_indicators, add_temporal_features
 from src.model_registry import get_model_name
 from src.ohlc_data_reader import OhlcDataReader
-from src.preprocessing import keep_only_numeric_columns
+from src.preprocessing import keep_only_numeric_columns, get_and_check_most_recent_row
 from src.utils import timestamp_ms_to_human_readable_utc
 
 
@@ -167,38 +165,33 @@ class PricePredictor:
             product_id=self.product_id,
             last_n_minutes=self.last_n_minutes,
         )
-        logger.debug(
-            f"Read {len(raw_ohlcv_data)} OHLCV candles from the online feature group"
-        )
+        num_candles = len(raw_ohlcv_data)
+        logger.debug(f"Read {num_candles} OHLCV candles from the online feature group")
+        if num_candles < self.last_n_minutes:
+            logger.warning(
+                f"The number of OHLCV candles read from the online feature group is less than last_n_minutes ({num_candles}/{self.last_n_minutes})"
+            )
 
         # Preprocess the data and add necessary features
         logger.debug(f"Preprocessing the data and adding necessary features")
         ohlcv_data = keep_only_numeric_columns(raw_ohlcv_data)
         ohlcv_data = add_technical_indicators(ohlcv_data)
         ohlcv_data = add_temporal_features(ohlcv_data)
-
-        # double check the last row of the dataframe has no missing values
-        logger.debug(f"Checking the last row of the dataframe has no missing values")
-        assert (
-            ohlcv_data.iloc[-1].isna().sum() == 0
-        ), "The last row of the dataframe has missing values"
-
-        # extract the last row of ohlc_data into a new dataframe
-        features = ohlcv_data.iloc[[-1]]
+        most_recent_row = get_and_check_most_recent_row(ohlcv_data)
 
         # make a prediction
-        predicted_price = self.model.predict(features)[0]
+        predicted_price = self.model.predict(most_recent_row)[0]
 
         # get the timestamp_ms that corresponds to the predicted_price
         predicted_timestamp_ms = (
-            int(features["timestamp_ms"].values[0])
+            int(most_recent_row["timestamp_ms"].values[0])
             + self.forecast_steps * self.ohlc_window_sec * 1000
         )
 
         # calculate the predicted percentage change
         predicted_perc_change = (
-            predicted_price - features["close"].values[0]
-        ) / features["close"].values[0]
+            predicted_price - most_recent_row["close"].values[0]
+        ) / most_recent_row["close"].values[0]
 
         # build the response object
         prediction = PricePrediction(
@@ -207,7 +200,7 @@ class PricePredictor:
             product_id=self.product_id,
             timestamp=timestamp_ms_to_human_readable_utc(predicted_timestamp_ms),
             predicted_perc_change=predicted_perc_change.round(6),
-            current_price=features["close"].values[0],
+            current_price=most_recent_row["close"].values[0],
         )
 
         return prediction
