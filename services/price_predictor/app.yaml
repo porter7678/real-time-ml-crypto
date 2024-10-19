@@ -56,6 +56,11 @@ variables:
     description: ''
     defaultValue: 30
     required: true
+  - name: ML_MODEL_STATUS
+    inputType: FreeText
+    description: ''
+    defaultValue: production
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/training.py
 defaultFile: src/training.py
