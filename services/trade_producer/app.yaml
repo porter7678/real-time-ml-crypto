@@ -6,6 +6,11 @@ variables:
     description: ''
     defaultValue: trade
     required: true
+  - name: PRODUCT_IDS
+    inputType: FreeText
+    description: List of currencies to get trades for
+    defaultValue: '["BTC/USD"]'
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
