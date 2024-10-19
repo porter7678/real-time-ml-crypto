@@ -54,7 +54,7 @@ variables:
   - name: LAST_N_MINUTES
     inputType: FreeText
     description: ''
-    defaultValue: 30
+    defaultValue: 60
     required: true
   - name: ML_MODEL_STATUS
     inputType: FreeText
