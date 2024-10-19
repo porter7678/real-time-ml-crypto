@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 class Config(BaseSettings):
     model_config = {"env_file": ".env"}
 
-    kafka_broker_address: str
+    kafka_broker_address: str | None = None
     kafka_topic: str
     product_ids: list[str]
 
