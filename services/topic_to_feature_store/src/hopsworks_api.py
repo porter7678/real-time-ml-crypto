@@ -52,7 +52,6 @@ class HopsworksAPI:
 
         # Convert the value to a pandas DataFrame
         value_df = pd.DataFrame(value)
-        logger.debug(f"df to insert:\n{value_df}")  # FIXME: Remove
 
         # Insert the value into the feature group
         result = feature_group.insert(
