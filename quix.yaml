@@ -118,6 +118,35 @@ deployments:
         description: ''
         required: true
         value: 1
+  - name: trade_producer_historical
+    application: services/trade_producer
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_TOPIC
+        inputType: OutputTopic
+        description: ''
+        required: true
+        value: trade_historical
+      - name: PRODUCT_IDS
+        inputType: FreeText
+        description: List of currencies to get trades for
+        required: true
+        value: '["BTC/USD", "ETH/USD"]'
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: ''
+        required: true
+        value: historical
+      - name: LAST_N_DAYS
+        inputType: FreeText
+        description: Number of days in the past for which we fetch trade data
+        required: false
+        value: 30
 
 # This section describes the Topics of the data pipeline
 topics:
