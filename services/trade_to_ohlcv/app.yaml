@@ -11,6 +11,11 @@ variables:
     description: Topic to send candles to
     defaultValue: ohlcv
     required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: ''
+    defaultValue: trade_to_ohlcv_consumer_group
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
