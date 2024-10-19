@@ -147,6 +147,35 @@ deployments:
         description: Number of days in the past for which we fetch trade data
         required: false
         value: 30
+  - name: trade_to_ohlcv_historical
+    application: services/trade_to_ohlcv
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_INPUT_TOPIC
+        inputType: InputTopic
+        description: Topic to consume trades from
+        required: true
+        value: trade_historical
+      - name: KAFKA_OUTPUT_TOPIC
+        inputType: OutputTopic
+        description: Topic to send candles to
+        required: true
+        value: ohlcv_historical
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: ''
+        required: true
+        value: trade_to_ohlcv_historical_consumer_group
+      - name: OHLCV_WINDOW_SECONDS
+        inputType: FreeText
+        description: Window length for candles in secs
+        required: true
+        value: 60
 
 # This section describes the Topics of the data pipeline
 topics:
