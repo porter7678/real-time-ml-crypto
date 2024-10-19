@@ -76,6 +76,11 @@ variables:
     description: ''
     defaultValue: HOPSWORKS_API_KEY
     required: true
+  - name: COMET_API_KEY
+    inputType: Secret
+    description: ''
+    defaultValue: COMET_API_KEY
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/training.py
 defaultFile: src/training.py
