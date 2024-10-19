@@ -39,11 +39,14 @@ def topic_to_feature_store(
         broker_address=kafka_broker_address,
         consumer_group=kafka_consumer_group,
     )
+    input_topic = app.topic(kafka_input_topic)
     hopsworks_api = HopsworksAPI()
 
     batch = []
     with app.get_consumer() as consumer:
-        consumer.subscribe(topics=[kafka_input_topic])
+
+        # Using the input_topic object keeps this consistent when we deploy to Quix
+        consumer.subscribe(topics=[input_topic.name])
 
         while True:
             msg = consumer.poll(0.1)
