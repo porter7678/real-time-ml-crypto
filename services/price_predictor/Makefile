@@ -33,10 +33,10 @@ api: build
 		-e TRAINING_OR_PREDICTION=prediction \
 		price_predictor
 
-# # check health of our production API FIXME
-# check-health-prod:
-# 	curl -X GET https://price-predictor-plabartabajo-realtimemlsystemcohort-e3624228.deployments.quix.io/health
+# check health of our production API
+check-health-prod:
+	curl -X GET https://price-predictor-porter7678-realtimemlcrypto-production.deployments.quix.io/health
 
-# # make a prediction request to our production API FIXME:
-# predict-request-prod:
-# 	curl -X GET "https://price-predictor-plabartabajo-realtimemlsystemcohort-e3624228.deployments.quix.io/predict?product_id=BTC%2FUSD"
+# make a prediction request to our production API
+predict-request-prod:
+	curl -X GET "https://price-predictor-porter7678-realtimemlcrypto-production.deployments.quix.io/predict?product_id=BTC%2FUSD"
