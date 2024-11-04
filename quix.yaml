@@ -288,7 +288,7 @@ deployments:
         inputType: FreeText
         description: ''
         required: true
-        value: 5
+        value: 10
       - name: N_SPLITS
         inputType: FreeText
         description: ''
