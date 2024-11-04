@@ -248,7 +248,7 @@ deployments:
         inputType: FreeText
         description: ''
         required: true
-        value: ohlcv_feature_view
+        value: ohlcv_feature_view_two
       - name: FEATURE_VIEW_VERSION
         inputType: FreeText
         description: ''
@@ -258,7 +258,7 @@ deployments:
         inputType: FreeText
         description: ''
         required: true
-        value: ohlcv_feature_group
+        value: ohlcv_feature_group_two
       - name: FEATURE_GROUP_VERSION
         inputType: FreeText
         description: ''
