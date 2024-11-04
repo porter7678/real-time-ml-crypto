@@ -47,7 +47,7 @@ def topic_to_feature_store(
     hopsworks_api = HopsworksAPI()
 
     batch = []
-    last_push_time = time.time()
+    last_append_time = time.time()
     with app.get_consumer() as consumer:
 
         # Using the input_topic object keeps this consistent when we deploy to Quix
@@ -57,7 +57,7 @@ def topic_to_feature_store(
             msg = consumer.poll(0.1)
             if msg is None:
                 # Check if timeout has been reached for pushing the batch
-                if batch and (time.time() - last_push_time) >= timeout_seconds:
+                if batch and (time.time() - last_append_time) >= timeout_seconds:
                     logger.debug(
                         f"Timeout reached with partial batch size {len(batch)}. "
                         "Pushing to feature store..."
@@ -71,7 +71,6 @@ def topic_to_feature_store(
                         start_offline_materialization,
                     )
                     batch = []  # Clear the batch
-                    last_push_time = time.time()  # Reset push time
                     return None
                 continue
             elif msg.error():
@@ -85,6 +84,7 @@ def topic_to_feature_store(
 
             # Append the message to the batch
             batch.append(value)
+            last_append_time = time.time()
 
             # If the batch is not full, continue
             if len(batch) < batch_size:
@@ -107,7 +107,6 @@ def topic_to_feature_store(
 
             # Clear the batch
             batch = []
-            last_push_time = time.time()
 
 
 if __name__ == "__main__":
