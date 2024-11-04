@@ -170,7 +170,7 @@ deployments:
         inputType: FreeText
         description: ''
         required: true
-        value: trade_to_ohlcv_historical_consumer_group
+        value: trade_to_ohlcv_historical_consumer_group1
       - name: OHLCV_WINDOW_SECONDS
         inputType: FreeText
         description: Window length for candles in secs
