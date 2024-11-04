@@ -1,4 +1,5 @@
 import json
+import time
 
 from loguru import logger
 from quixstreams import Application
@@ -16,6 +17,7 @@ def topic_to_feature_store(
     feature_group_event_time: str,
     start_offline_materialization: bool,
     batch_size: int,
+    timeout_seconds: int = 300,
 ):
     """
     Reads incoming messages from a Kafka topic and writes them to a feature store.
@@ -31,6 +33,8 @@ def topic_to_feature_store(
         start_offline_materialization: Whether to start the offline materialization
         batch_size: The number of messages to accumulate in memory before pushing
             to the feature store.
+        timeout_seconds: The number of seconds to wait for a message before pushing
+            an incomplete batch to the feature store.
 
     Returns:
         None
@@ -43,6 +47,7 @@ def topic_to_feature_store(
     hopsworks_api = HopsworksAPI()
 
     batch = []
+    last_push_time = time.time()
     with app.get_consumer() as consumer:
 
         # Using the input_topic object keeps this consistent when we deploy to Quix
@@ -51,6 +56,22 @@ def topic_to_feature_store(
         while True:
             msg = consumer.poll(0.1)
             if msg is None:
+                # Check if timeout has been reached for pushing the batch
+                if batch and (time.time() - last_push_time) >= timeout_seconds:
+                    logger.debug(
+                        f"Timeout reached with partial batch size {len(batch)}. "
+                        "Pushing to feature store..."
+                    )
+                    hopsworks_api.push_value_to_feature_group(
+                        batch,
+                        feature_group_name,
+                        feature_group_version,
+                        feature_group_primary_keys,
+                        feature_group_event_time,
+                        start_offline_materialization,
+                    )
+                    batch = []  # Clear the batch
+                    last_push_time = time.time()  # Reset push time
                 continue
             elif msg.error():
                 logger.error(f"Kafka error: {msg.error()}")
@@ -65,7 +86,6 @@ def topic_to_feature_store(
             batch.append(value)
 
             # If the batch is not full, continue
-            # TODO: Make sure the last batch gets pushed even if not full
             if len(batch) < batch_size:
                 logger.debug(f"Batch size: {len(batch)} < {batch_size}. Continuing...")
                 continue
@@ -86,9 +106,11 @@ def topic_to_feature_store(
 
             # Clear the batch
             batch = []
+            last_push_time = time.time()
 
 
 if __name__ == "__main__":
+
     from src.config import config
 
     topic_to_feature_store(
