@@ -40,3 +40,7 @@ check-health-prod:
 # make a prediction request to our production API
 predict-request-prod:
 	curl -X GET "https://price-predictor-porter7678-realtimemlcrypto-production.deployments.quix.io/predict?product_id=BTC%2FUSD"
+
+
+test:
+	poetry run pytest tests

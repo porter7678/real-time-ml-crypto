@@ -32,3 +32,9 @@ jobs:
         cd services/trade_to_ohlcv
         poetry install
         make test
+
+    - name: Test price_predictor
+      run: |
+        cd services/price_predictor
+        poetry install
+        make test
