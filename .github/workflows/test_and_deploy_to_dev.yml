@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  test_trade_to_ohlc:
+  test_trade_to_ohlcv:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,16 +30,16 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd services/trade_to_ohlc
+        cd services/trade_to_ohlcv
         poetry install
 
-    - name: Test trade_to_ohlc
+    - name: Test trade_to_ohlcv
       run: |
-        cd services/trade_to_ohlc
+        cd services/trade_to_ohlcv
         make test
 
   test_price_predictor:
-    needs: test_trade_to_ohlc
+    needs: test_trade_to_ohlcv
     runs-on: ubuntu-latest
 
     steps:
