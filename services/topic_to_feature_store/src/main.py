@@ -72,6 +72,7 @@ def topic_to_feature_store(
                     )
                     batch = []  # Clear the batch
                     last_push_time = time.time()  # Reset push time
+                    return None
                 continue
             elif msg.error():
                 logger.error(f"Kafka error: {msg.error()}")
