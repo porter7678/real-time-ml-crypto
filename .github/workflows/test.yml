@@ -6,7 +6,7 @@ on:
       - dev
     
   workflow_dispatch:
-    
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,8 +27,8 @@ jobs:
     - name: Add Poetry to PATH
       run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
-    - name: Test trade_to_ohlc
+    - name: Test trade_to_ohlcv
       run: |
-        cd services/trade_to_ohlc
+        cd services/trade_to_ohlcv
         poetry install
         make test
