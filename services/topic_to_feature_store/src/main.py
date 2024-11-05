@@ -47,6 +47,7 @@ def topic_to_feature_store(
     hopsworks_api = HopsworksAPI()
 
     batch = []
+    total_count = 0
     last_append_time = time.time()
     with app.get_consumer() as consumer:
 
@@ -85,10 +86,13 @@ def topic_to_feature_store(
             # Append the message to the batch
             batch.append(value)
             last_append_time = time.time()
+            total_count += 1
 
             # If the batch is not full, continue
             if len(batch) < batch_size:
-                logger.debug(f"Batch size: {len(batch)} < {batch_size}. Continuing...")
+                logger.debug(
+                    f"Batch size: {len(batch)} < {batch_size}. (total:{total_count}) Continuing..."
+                )
                 continue
 
             logger.debug(
