@@ -10,7 +10,7 @@ from src.feature_engineering import add_technical_indicators, add_temporal_featu
 from src.model_registry import get_model_name
 from src.ohlc_data_reader import OhlcDataReader
 from src.preprocessing import keep_only_numeric_columns, get_and_check_most_recent_row
-from src.utils import timestamp_ms_to_human_readable_utc
+from src.utils import timestamp_ms_to_human_readable_utc, get_git_commit_hash
 
 
 class PricePrediction(BaseModel):
@@ -20,6 +20,8 @@ class PricePrediction(BaseModel):
     timestamp: str
     predicted_perc_change: float
     current_price: float
+
+    metadata: dict
 
     def to_json(self) -> str:
         return json.dumps(self.model_dump())
@@ -99,13 +101,20 @@ class PricePredictor:
             workspace=comet_config.comet_workspace,
             model_name=get_model_name(product_id, ohlc_window_sec, forecast_steps),
         )
+        logger.debug(f"Found model: {model}")
         # find the version for the current model with the given `status`
         # Here I am assuming there is only one model version for that status.
         # I recommend you only have 1 production model at a time.
         # As for dev, or staging, you can have multiple versions, so we sort by
         # version and get the latest one.
         # Thanks Bilel for the suggestion!
+        all_versions = model.find_versions()
+        logger.debug(f"All versions: {all_versions}")
+
         model_versions = model.find_versions(status=status)
+        logger.debug(
+            f"Found {len(model_versions)} matching models with status {status}"
+        )
 
         # sort the model versions list from high to low and pick the first element
         model_version = sorted(model_versions, reverse=True)[0]
@@ -193,6 +202,10 @@ class PricePredictor:
             predicted_price - most_recent_row["close"].values[0]
         ) / most_recent_row["close"].values[0]
 
+        metadata = {
+            "git_commit_hash": get_git_commit_hash(),
+        }
+
         # build the response object
         prediction = PricePrediction(
             price=predicted_price,
@@ -201,6 +214,7 @@ class PricePredictor:
             timestamp=timestamp_ms_to_human_readable_utc(predicted_timestamp_ms),
             predicted_perc_change=predicted_perc_change.round(6),
             current_price=most_recent_row["close"].values[0],
+            metadata=metadata,
         )
 
         return prediction

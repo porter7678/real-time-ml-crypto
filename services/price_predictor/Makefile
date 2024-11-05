@@ -1,17 +1,17 @@
 # To run the training script without Docker
-training-dev:
+training-local:
 	poetry run python src/training.py
 
 # To run the API locally without Docker
-api-dev:
+api-local:
 	poetry run uvicorn src.api:app --reload --port 8000
 
 # To check the health of the API
-check-health-dev:
+check-health-local:
 	curl -X GET http://localhost:8000/health
 
 # To make a prediction request to the API
-predict-request-dev:
+predict-request-local:
 	curl -X GET "http://localhost:8000/predict?product_id=BTC%2FUSD"
 
 # Build the Docker image
@@ -40,3 +40,16 @@ check-health-prod:
 # make a prediction request to our production API
 predict-request-prod:
 	curl -X GET "https://price-predictor-porter7678-realtimemlcrypto-production.deployments.quix.io/predict?product_id=BTC%2FUSD"
+
+
+# check health of our dev API
+check-health-dev:
+	curl -X GET https://price-predictor-porter7678-realtimemlcrypto-dev.deployments.quix.io/health
+
+# make a prediction request to our dev API
+predict-request-dev:
+	curl -X GET "https://price-predictor-porter7678-realtimemlcrypto-dev.deployments.quix.io/predict?product_id=BTC%2FUSD"
+
+
+test:
+	poetry run pytest tests
