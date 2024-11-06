@@ -12,4 +12,11 @@ class Config(BaseSettings):
     last_n_days: int | None = None
 
 
+class ElasticSearchConfig(BaseSettings):
+    model_config = {"env_file": "elastic_search.env"}
+
+    elasticsearch_url: str
+
+
 config = Config()
+elasticsearch_config = ElasticSearchConfig()

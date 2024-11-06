@@ -1,7 +1,7 @@
-from loguru import logger
 from quixstreams import Application
 from quixstreams.models import TopicConfig
 
+from src.logger import logger
 from src.trade_data_source import Trade, TradeSource
 
 
@@ -48,7 +48,7 @@ def produce_trades(
                 # Produce the message into the Kafka topic
                 producer.produce(topic=topic.name, value=message.value, key=message.key)
 
-                logger.debug(f"Pushed trade to Kafka: {trade}")
+                logger.info(f"Pushed trade to Kafka: {trade}")
 
     logger.info("Finished producing trades")
 

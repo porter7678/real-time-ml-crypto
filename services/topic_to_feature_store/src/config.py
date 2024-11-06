@@ -23,5 +23,12 @@ class HopsworksConfig(BaseSettings):
     hopsworks_api_key: str
 
 
+class ElasticSearchConfig(BaseSettings):
+    model_config = {"env_file": "elastic_search.env"}
+
+    elasticsearch_url: str
+
+
 config = Config()
 hopsworks_config = HopsworksConfig()
+elasticsearch_config = ElasticSearchConfig()

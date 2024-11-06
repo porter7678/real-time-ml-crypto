@@ -4,8 +4,8 @@ FROM python:3.10-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Install build-essential which includes gcc and other build tools, and git
-RUN apt-get update && apt-get install -y build-essential wget git
+# Install build-essential which includes gcc and other build tools
+RUN apt-get update && apt-get install -y build-essential wget
 
 # Install TA-Lib
 RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \

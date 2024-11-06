@@ -34,6 +34,13 @@ class CometConfig(BaseSettings):
     comet_workspace: str
 
 
+class ElasticSearchConfig(BaseSettings):
+    model_config = {"env_file": "elastic_search.env"}
+
+    elasticsearch_url: str
+
+
 config = Config()
 hopsworks_config = HopsworksConfig()
 comet_config = CometConfig()
+elasticsearch_config = ElasticSearchConfig()

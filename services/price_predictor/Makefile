@@ -28,8 +28,10 @@ training: build
 # Run the API inside the Docker container
 api: build
 	docker run \
+		--network=redpanda_network \
 		-p 8000:80 \
 		--env-file .env \
+		--env-file elastic_search.env \
 		-e TRAINING_OR_PREDICTION=prediction \
 		price_predictor
 

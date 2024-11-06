@@ -3,6 +3,8 @@ import subprocess
 
 import pandas as pd
 
+from src.logger import logger
+
 
 # Function to create a consistent hash of a pandas DataFrame
 def hash_dataframe(df: pd.DataFrame) -> str:
@@ -40,3 +42,21 @@ def get_git_commit_hash() -> str:
         git_commit_hash = "Unknown"
 
     return git_commit_hash
+
+
+def log_prediction_to_elasticsearch(prediction: "PricePrediction"):
+    """
+    Log a PricePrediction object to Elasticsearch.
+
+    Args:
+        prediction (PricePrediction): The PricePrediction object to log.
+    """
+    timestamp = datetime.fromtimestamp(
+        prediction.timestamp_ms / 1000.0, tz=timezone.utc
+    ).isoformat()
+
+    logger.bind(
+        timestamp=timestamp,
+        product_id=prediction.product_id,
+        price=prediction.price,
+    ).info(f"Prediction: {prediction.to_json()}")

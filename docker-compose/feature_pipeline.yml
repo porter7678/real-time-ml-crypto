@@ -13,6 +13,7 @@ services:
       - redpanda_network
     env_file:
       - ../services/trade_producer/live.prod.env
+      - ../services/trade_producer/elastic_search.env
     restart: always
 
   trade_to_ohlcv:
@@ -34,4 +35,5 @@ services:
     env_file:
       - ../services/topic_to_feature_store/live.prod.env
       - ../services/topic_to_feature_store/credentials.env
+      - ../services/topic_to_feature_store/elastic_search.env
     restart: always

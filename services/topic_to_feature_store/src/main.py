@@ -1,10 +1,11 @@
 import json
 import time
 
-from loguru import logger
 from quixstreams import Application
 
 from src.hopsworks_api import HopsworksAPI
+from src.logger import logger
+from src.utils import log_ohlcv_to_elasticsearch
 
 
 def topic_to_feature_store(
@@ -83,6 +84,9 @@ def topic_to_feature_store(
             # decode the message bytes into a dict
             value = json.loads(value.decode("utf-8"))
 
+            # Log the message to Elasticsearch
+            log_ohlcv_to_elasticsearch(value)
+
             # Append the message to the batch
             batch.append(value)
             last_append_time = time.time()
@@ -95,7 +99,7 @@ def topic_to_feature_store(
                 )
                 continue
 
-            logger.debug(
+            logger.info(
                 f"Batch size: {len(batch)} >= {batch_size}. Pushing to feature store..."
             )
             if batch_size == 1:

@@ -3,6 +3,7 @@ from loguru import logger
 
 from src.config import config
 from src.price_predictor import PricePredictor
+from src.utils import log_prediction_to_elasticsearch
 
 app = FastAPI()
 
@@ -44,6 +45,7 @@ def predict(product_id: str = Query(..., description="The product ID to predict"
         # the ML magic happens here
         logger.debug("Predicting...")
         prediction = predictor.predict()
+        log_prediction_to_elasticsearch(prediction)
 
         logger.debug("Returning prediction")
         return {"prediction": prediction.to_json()}

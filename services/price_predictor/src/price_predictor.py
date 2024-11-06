@@ -39,6 +39,7 @@ class PricePredictor:
         last_n_minutes: int,
         features_to_use: list[str],
         model_path: str,
+        model_version: str,
     ):
         self.product_id = product_id
         self.ohlc_window_sec = ohlc_window_sec
@@ -48,6 +49,7 @@ class PricePredictor:
         self.last_n_minutes = last_n_minutes
         self.features_to_use = features_to_use
         self.model_path = model_path
+        self.model_version = model_version
 
         logger.info(f"Loading model from {model_path}")
         self.model = self._load_model_from_disk(model_path)
@@ -162,6 +164,7 @@ class PricePredictor:
             feature_view_version=feature_view_version,
             last_n_minutes=last_n_minutes,
             features_to_use=features_to_use,
+            model_version=model_version,
         )
 
     def predict(self) -> PricePrediction:
@@ -203,7 +206,7 @@ class PricePredictor:
         ) / most_recent_row["close"].values[0]
 
         metadata = {
-            "git_commit_hash": get_git_commit_hash(),
+            "model_version": self.model_version,
         }
 
         # build the response object
